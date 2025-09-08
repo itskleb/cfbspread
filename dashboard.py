@@ -14,7 +14,7 @@ df = df[df['week'] == week]
 
 money = px.histogram(df,x='spreadchg',hover_data=['favorite','spreadmean'])
 
-time = px.line(df,x='date',y='spreadchg',color='favorite')
+time = px.line(df,x='date',y='spreadchg',color='favorite',hover_data=['spreadMean','homeTeam'])
 t1,t2 = st.tabs(['Histogram','Line'])
 with t1:
   st.plotly_chart(money)
