@@ -10,6 +10,10 @@ teams = df['homeTeam'].unique().tolist()
 with st.sidebar:
   week = st.selectbox("Week",[i for i in range(1,17)])
   team = st.selectbox("Team",df['homeTeam'].sort_values().unique().tolist())
-df = df[df['week'] == week and df['homeTeam'] == team]
+df = df[df['week'] == week]
+
+money = px.scatter(df.x='spreaddiff',y='spreadchg')
+
+st.plotly_chart(money)
 
 df
