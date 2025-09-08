@@ -12,7 +12,7 @@ with st.sidebar:
   team = st.selectbox("Team",df['homeTeam'].sort_values().unique().tolist())
 df = df[df['week'] == week]
 
-money = px.scatter(df,x='spreadDiff',y='spreadchg')
+money = px.histplot(df,x='spreadchg')
 
 st.plotly_chart(money)
 
