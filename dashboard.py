@@ -26,4 +26,4 @@ df['spreadABV'] = df['spreadchg'].abs()
 
 display_df = df[['homeTeam', 'awayTeam', 'favorite','spreadmean','spreadchg','spreadABV']]
 
-display_df
+display_df.sort_values(by='spreadABV',ascending=False)
