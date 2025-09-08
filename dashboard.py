@@ -20,4 +20,8 @@ with t1:
   st.plotly_chart(money)
 with t2:
   st.plotly_chart(time)
-df
+
+df['spreadABV'] = df['spreadchg'].abs()
+
+
+df[['homeTeam', 'awayTeam', 'favorite','spreadmean','spreachg','spreadABV']]
