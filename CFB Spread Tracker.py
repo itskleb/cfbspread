@@ -13,7 +13,7 @@ import os
 
 TOKEN = "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"
 
-FILE_PATH = "/CFB/CFB_Spread_Database.csv"
+FILE_PATH = "/CFB/cfbspread/CFB_Spread_Database.csv"
 REPO = "itskleb/cfbspread"
 GIT_Path = "CFB_Spread_Database.csv"
 
@@ -113,7 +113,7 @@ def grabNewLines(week,year,config):
 
 
 
-oldf = pd.read_csv('~/CFB/CFB_Spread_Database.csv',index_col='uniqID').sort_values(by=['startDate','id'])
+oldf = pd.read_csv('~/CFB/cfbspread/CFB_Spread_Database.csv',index_col='uniqID').sort_values(by=['startDate','id'])
 oldf['date'] = pd.to_datetime(oldf['date'])
 
 #for i in oldf.columns.tolist():
@@ -146,7 +146,7 @@ newdf['spreadchg'] = newdf['id'].map(holder)
 
 full_monty = pd.concat([oldf,newdf])
 print(full_monty)
-full_monty.to_csv('~/CFB/CFB_Spread_Database.csv')
+full_monty.to_csv('~/CFB/cfbspread/CFB_Spread_Database.csv')
 
 #full_monty.set_index('home_team').filter(like='Florida State',axis=0)['date']
 
