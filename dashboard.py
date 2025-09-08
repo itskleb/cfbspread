@@ -24,6 +24,6 @@ with t2:
 df['spreadABV'] = df['spreadchg'].abs()
 
 
-display_df = df[['homeTeam', 'awayTeam', 'favorite','spreadmean','spreachg','spreadABV']]
+display_df = df[['homeTeam', 'awayTeam', 'favorite','spreadmean','spreadchg','spreadABV']]
 
 display_df
