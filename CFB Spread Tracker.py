@@ -8,6 +8,23 @@ import cfbd
 import pandas as pd
 import numpy as np
 import datetime as dt
+#from github import Github
+import os
+
+TOKEN = "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"
+
+FILE_PATH = "/CFB/CFB_Spread_Database.csv"
+REPO = "itskleb/cfbspread"
+GIT_Path = "CFB_Spread_Database.csv"
+
+#g = Github(TOKEN)
+
+#repo = g.get_repo(REPO)
+
+configuration = cfbd.Configuration(access_token='cfBzp2RbdkBIYhq0ZYQ6wxbpDUWgIbIJ8Let+jDNSIaobtaHslr7jsIYFP2uT9bL')
+#configuration.api_key['Authorization'] = 'Bearer cfBzp2RbdkBIYhq0ZYQ6wxbpDUWgIbIJ8Let+jDNSIaobtaHslr7jsIYFP2uT9bL'
+#configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 
 def grabSpreadDiff(x):
     try:
@@ -49,13 +66,13 @@ def grabSpreadO(x):
     return (sp)
 
 def colorOfMoney(x):
-    if x['favorite'] == x['home_team'] and x['spreadDiffmean'] > 0:
+    if x['favorite'] == x['homeTeam'] and x['spreadDiffmean'] > 0:
         clr = 'HomeFavGoingAway'
-    elif x['favorite'] == x['home_team'] and x['spreadDiffmean'] < 0:
+    elif x['favorite'] == x['homeTeam'] and x['spreadDiffmean'] < 0:
         clr = 'HomeFavImprobableLuck'
-    elif x['favorite'] == x['away_team'] and x['spreadDiffmean'] > 0:
+    elif x['favorite'] == x['awayTeam'] and x['spreadDiffmean'] > 0:
         clr = 'AwayFavGoingAway'
-    elif x['favorite'] == x['away_team'] and x['spreadDiffmean'] < 0:
+    elif x['favorite'] == x['awayTeam'] and x['spreadDiffmean'] < 0:
         clr = 'AwayFavImprobableLuck'
     else:
         clr = 'Flat'
@@ -63,16 +80,11 @@ def colorOfMoney(x):
     return (clr)
 
 
-def grabNewLines(week,year):
-    configuration = cfbd.Configuration()
-    configuration.api_key['Authorization'] = 'cfBzp2RbdkBIYhq0ZYQ6wxbpDUWgIbIJ8Let+jDNSIaobtaHslr7jsIYFP2uT9bL'
-    configuration.api_key_prefix['Authorization'] = 'Bearer'
+def grabNewLines(week,year,config):
     now = dt.datetime.now()
 
-    if dt.datetime.weekday(dt.datetime.now()) == 6:
-        week = int(df['week'][0])+1
     
-    lines = cfbd.BettingApi(cfbd.ApiClient(configuration))
+    lines = cfbd.BettingApi(cfbd.ApiClient(config))
     cols = lines.get_lines(year=year,week=week)[0].to_dict().keys()
     updf = pd.DataFrame(columns=cols)
     games = lines.get_lines(year=year,week=week)
@@ -95,26 +107,67 @@ def grabNewLines(week,year):
     updf = updf.join(updf.groupby(by='id').mean(),on='id',rsuffix='mean')
     updf['color'] = updf.apply(colorOfMoney,axis=1)
     updf = updf.drop_duplicates(['uniqID'])
-    updf = updf.sort_values(by='uniqID',ascending = True)
+    updf = updf.sort_values(by=['startDate','id'],ascending = True)
     updf = updf.set_index('uniqID')
     return (updf)
 
-newdf = grabNewLines(week=1,year=2025)
 
-oldf = pd.read_csv('CFB_Spread_Database.csv',index_col='uniqID').drop('index',axis=1).sort_values(by='uniqID')
+
+oldf = pd.read_csv('~/CFB/CFB_Spread_Database.csv',index_col='uniqID').sort_values(by=['startDate','id'])
 oldf['date'] = pd.to_datetime(oldf['date'])
 
-last_run = pd.to_datetime(oldf.date.unique()[0])
+#for i in oldf.columns.tolist():
+
+#	print(i)
+
+
+gameDate = pd.to_datetime(oldf.sort_values(by='startDate',ascending = False)['startDate'])[0]
+print(gameDate, type(gameDate))
+
+if dt.datetime.now().replace(tzinfo=None) > gameDate.replace(tzinfo=None):
+	wk = int(oldf['week'][len(oldf)-1])+1
+else:
+	wk = int(oldf.sort_values(by='startDate',ascending=False)['week'][0])
+
+print(f'Week == {wk}')
+
+newdf = grabNewLines(week=wk,year=2025,config=configuration)
+
+#for i in newdf.columns.tolist():
+#	print(i)
+
+last_run = pd.to_datetime(oldf.date.unique()[-1])
+
+print(last_run)
+
 holder = oldf[oldf['date']==last_run][['id','spreadmean']].set_index('id')['spreadmean']*(-1)+newdf[['id','spreadmean']].set_index('id')['spreadmean']
 
 newdf['spreadchg'] = newdf['id'].map(holder)
 
 full_monty = pd.concat([oldf,newdf])
-full_monty.to_csv('CFB_Spread_Database.csv')
+print(full_monty)
+full_monty.to_csv('~/CFB/CFB_Spread_Database.csv')
 
 #full_monty.set_index('home_team').filter(like='Florida State',axis=0)['date']
 
+"""
+# Read CSV file
+with open(FILE_PATH, "r") as f:
+    content = f.read()
 
+# Check if file already exists
+try:
+    file = repo.get_contents(GITHUB_FILE_PATH)
+    # Update if exists
+    repo.update_file(file.path, "Update CSV via Python", content, file.sha, branch="main")
+    print("✅ File updated on GitHub.")
+except:
+    # Create if not exists
+    repo.create_file(GITHUB_FILE_PATH, "Add CSV via Python", content, branch="main")
+    print("✅ File uploaded to GitHub.")
+
+f.close()
+"""
 # In[94]:
 
 
